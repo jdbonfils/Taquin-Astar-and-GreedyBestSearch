@@ -11,7 +11,7 @@ class TaquinWindow :
 		self.columns = len(path[0].getTiles()[0])
 		self.FONT=('Ubuntu', 27, 'bold')
 		self.master = Tk()
-		self.cnv = Canvas(self.master, width=(100*self.rows), height=(100*self.columns), bg='gray70')
+		self.cnv = Canvas(self.master, width=(100*self.columns), height=(100*self.rows), bg='gray70')
 		#Bouton pour affiche le bouton Suivant
 		self.cnv.pack(side='left')
 		self.btnN=Button(text="       Next move       ", command=self.nextMove)
@@ -101,7 +101,7 @@ class TaquinWindow :
 	                    #Cette variable passe a false si on est au dernier mouvement
 	                    if not self.finished :
 	                    	#Execute la fonction nextMove toutes les n ms
-	                    	self.master.after(300,self.nextMove)
+	                    	self.master.after(150,self.nextMove)
 	                    return 1
 	    else:
 	        return 0

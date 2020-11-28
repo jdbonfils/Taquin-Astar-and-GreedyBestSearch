@@ -96,9 +96,44 @@ class TaquinResolver:
 					open.append(np)
 			closed.append(n)
 		return self.bestPath
+		
+	def greedyBestSearch(self,  heuristicChosen):
+		open = []
+		closed = []
+		open.append(self.initialNode)
+		while open :
+			#Trie la liste dans l'ordre decroissant
+			open.sort(key=lambda x:  -1 *x.getFCost())
+			#On depile open puisque le plus cours chemin est a la fin de la liste
+			n = open[-1]
+			self.bestPath.append(n)
+			open.pop(-1)
+			#Si le chemin courant est le chemin final alors on s'arrete on a trouve une solution
+			if n.equalsTo(self.finalNode):
+				#Enleve les noeuds inutilement visite
+				self.findBestPath()
+				break;
+			#Pour chaque successeur np du noeud courant
+			for np in n.getSucessors() :
+				#Si np existe dans closedList ou np existe dans openList avec un coût inférieur
+				flag = 0
+				for node in closed :
+					if  (node.equalsTo(np) and  np.getFCost() < node.getFCost()):
+						flag = 1
+						break;
+				for node in open:
+					if  (node.equalsTo(np) and  np.getFCost() < node.getFCost()):
+						flag = 1
+						break;
+				if flag == 0:
+					#Alors on MAJ sont couts et on l'ajoute a la liste open
+					np.setFCost(heuristicChosen(self,np))
+					open.append(np)
+			closed.append(n)
+		return self.bestPath
 
 	#Version de l'algo du cours (Donne de moins bon resultats)
-	def aStarV2(self):
+	def aStarV2(self,  heuristicChosen):
 		#Declarer deux listes open et closed
 		open = []
 		closed = []
@@ -122,7 +157,7 @@ class TaquinResolver:
 				#Initialiser la valeur G(np) à G(N) + C(n,np) ici 1
 				np.setGCost(n.getGCost() + 1)
 				#Calcul de F(n)
-				np.setFCost( np.getGCost() + np.manhattanDistance(self.finalNode))
+				np.setFCost( np.getGCost() +  heuristicChosen(self,np))
 				flag = 0
 				#Si open continent un noeud npp egale à np avec f(np) <= f(npp)
 				for npp in open:

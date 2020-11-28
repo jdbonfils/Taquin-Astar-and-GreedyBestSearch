@@ -3,13 +3,12 @@ from TaquinResolver import TaquinResolver
 from Window import *
 import time
 
-
-finalNode = Node([[1,2,3],[4,5,6],[7,8,"X"]])
+finalNode = Node([[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,"X"]])
 #On genere un point de depart a 1000 mouvements de la solution
 #Il exite donc une solution pour le jeu du taqin en 10 mou
 #Note : dans la plus part des cas le jeu est realisable en moins de 30 coups
 #Le temps d'execution ne dependant pas tant du nombre de melange
-initialNode = Node.getInitialRandomNode(finalNode,1000)
+initialNode = Node.getInitialRandomNode(finalNode,40)
 
 #Affichage des Noeuds
 print(" Initial node : ")
@@ -17,6 +16,8 @@ initialNode.displayNode()
 print(" Final node : ")
 finalNode.displayNode()
 
+
+#Resoue le puzzle Avec l'Algo A*
 #On creer le resolver
 solver = TaquinResolver(initialNode,finalNode)
 #On laisse à l'utilisateur choisir l'heuristique
@@ -28,14 +29,33 @@ if choixHeuristique == 3 :
     path = solver.aStar(TaquinResolver.tilesOutOfRowAndColumn)
 else:
     path = solver.aStar(TaquinResolver.manhattanDistance)
-time_f=time.time()-start_time  
+time_f=time.time()-start_time 
 
-#Affichage du chemin dans la ligne de commande
+#Afffichage des resultats
 print("Chemin : ") 
 [node.displayNode() for node in path]
-
-print("Taille du chemin : "+ str(len(path)-1))
+print("Taille du chemin algorithme A*: "+ str(len(path)-1))
 print("running_time: %.8f\n" %time_f)
+
+
+
+#Resoue le puzzle Avec la methode Greddy Best First Search
+#On creer le resolver
+solver2 = TaquinResolver(initialNode,finalNode)
+start_time=time.time()
+if choixHeuristique == 2:
+    path = solver2.greedyBestSearch(TaquinResolver.misplacedTile)
+if choixHeuristique == 3 :
+    path = solver2.greedyBestSearch(TaquinResolver.tilesOutOfRowAndColumn)
+else:
+    path = solver2.greedyBestSearch(TaquinResolver.manhattanDistance)
+time_f=time.time()-start_time  
+
+#Affichage des reulstats
+print("Taille du chemin algorithme Greedy: "+ str(len(path)-1))
+print("running_time: %.8f\n" %time_f)
+
+
 
 #On construit la fenetre qui anime le chemin
 w = TaquinWindow(path)
