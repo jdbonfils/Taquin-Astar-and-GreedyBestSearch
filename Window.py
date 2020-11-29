@@ -14,7 +14,7 @@ class TaquinWindow :
 		self.cnv = Canvas(self.master, width=(100*self.columns), height=(100*self.rows), bg='gray70')
 		#Bouton pour affiche le bouton Suivant
 		self.cnv.pack(side='left')
-		self.btnN=Button(text="       Next move       ", command=self.nextMove)
+		self.btnN=Button(text="      Next move      ", command=self.nextMove)
 		self.master.bind('Right', self.nextMove)
 		self.btnN.pack()
 		#Bouton pour afficher le mouvement précédent
