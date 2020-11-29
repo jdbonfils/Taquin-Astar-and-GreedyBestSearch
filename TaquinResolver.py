@@ -5,7 +5,7 @@ class TaquinResolver:
 		self.bestPath = []
 
 	#Heuristique qui renvoie le nombre de tuile mal placée d'un noeud courant par rapport à un noeud final (la tuile vide n'est pas comptabilisé)
-	def misplacedTile(self,currentNode):
+	def misplacedTile(self,currentNode, extension = False):
 		h = 0
 		rows = len(currentNode.getTiles())
 		columns = len(currentNode.getTiles()[0])
@@ -18,7 +18,7 @@ class TaquinResolver:
 		return h
 
 	#Heurisitque calculant la distance de manhattan (la tuile vide n'est pas comptabilisé)
-	def manhattanDistance(self,currentNode):
+	def manhattanDistance(self,currentNode,cornerTiles = False ):
 		manhattanDistance = 0
 		rows = len(currentNode.getTiles())
 		columns = len(currentNode.getTiles()[0])
@@ -30,10 +30,28 @@ class TaquinResolver:
 					coord = self.finalNode.getCoordinateIn2DList(currentNode.getTiles()[i][y])
 					#On calcule la distance entre les coordonnées
 					manhattanDistance =  manhattanDistance + (abs(i-coord[0])+abs(y-coord[1]))
+		if cornerTiles	:
+			#On check les 4 angle
+			for i in range(0,2*(rows-1),rows-1):
+				for y in range(0,2*(columns-1),columns-1):
+					#Si la tuile de l'angle n'est pas bonne
+					if(currentNode.getTiles()[i][y] != self.finalNode.getTiles()[i][y] and currentNode.getTiles()[i][y] != 'X' ):
+						if i == 0 :
+							columnsOffset = 1
+						else :
+							columnsOffset = -1
+						if y == 0 :
+							rowOffset = 1
+						else:
+							rowOffset = -1
+						#On check si les tuiles adjacent a la tuile de l'angle courant sont les bonnes. Si oui, on rajoute 4 à la distance de manhattan
+						if(currentNode.getTiles()[i+columnsOffset][y] == self.finalNode.getTiles()[i+columnsOffset][y] and currentNode.getTiles()[i][y+rowOffset] == self.finalNode.getTiles()[i][y+rowOffset]):
+							manhattanDistance += 4
+						
 		return manhattanDistance
 
 	#Heuristique le nombre de tuile qui ne sont pas dans la bonne colonne aditionné avec le nombre de tuile qui ne sont pas sur la bonne ligne
-	def tilesOutOfRowAndColumn(self,currentNode):
+	def tilesOutOfRowAndColumn(self,currentNode,extension = False):
 		h = 0 
 		rows = len(currentNode.getTiles())
 		columns = len(currentNode.getTiles()[0])
@@ -61,7 +79,7 @@ class TaquinResolver:
 			i -= 1
 			
 	#Algorithme A* implémenté selon l'algo : https://fr.wikipedia.org/wiki/Algorithme_A*
-	def aStar(self,heuristicChosen):
+	def aStar(self,heuristicChosen, extended = False):
 		open = []
 		closed = []
 		open.append(self.initialNode)
@@ -92,7 +110,7 @@ class TaquinResolver:
 				if flag == 0:
 					#Alors on MAJ sont couts et on l'ajoute a la liste open
 					np.setGCost( n.getGCost() + 1)
-					np.setFCost( np.getGCost() + heuristicChosen(self,np))
+					np.setFCost( np.getGCost() + heuristicChosen(self,np,extended))
 					open.append(np)
 			closed.append(n)
 		return self.bestPath
