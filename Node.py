@@ -64,7 +64,9 @@ class Node:
 				r = r + str(elem) + " "
 			print("|"+r+"| \n")
 		print("\n")
-
+	#Permet d'inverser les tuiles dont les indices sont passés en parametre
+	def swapTiles(self,idx1,idy1,idx2,idy2):
+		self.tiles[idx1][idy1], self.tiles[idx2][idy2], = self.tiles[idx2][idy2],self.tiles[idx1][idy1] 
 
 	#Renvoie une liste de noeud successeurs du noeuds
 	def getSucessors(self):

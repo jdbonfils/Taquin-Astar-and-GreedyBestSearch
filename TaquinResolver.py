@@ -1,3 +1,5 @@
+from Node import Node
+import copy
 class TaquinResolver:
 	def __init__(self, initialNode, finalNode):
 		self.initialNode = initialNode
@@ -16,6 +18,41 @@ class TaquinResolver:
 					if(currentNode.getTiles()[i][y] != self.finalNode.getTiles()[i][y]):
 						h = h + 1
 		return h
+	#Heursitique de Gaschnig (version ameliore de misplacedTile)
+	def gaschnig(self,currentNode,extension = False):
+		rows = len(currentNode.getTiles())
+		columns = len(currentNode.getTiles()[0])
+		#On copie les tuiles du noeuds courant
+		node = Node(copy.deepcopy(currentNode.getTiles()))
+		value = 0 
+		#On reconstruit le noeuds finale a partir du noeuds courant
+		while not node.equalsTo(self.finalNode):
+			#On cherche la position de la tuile X dans le noeud courant
+			zi = node.getCoordinateIn2DList("X")
+			#Si la tuile X n'est pas à la bonne place
+			if self.finalNode.getTiles()[zi[0]][zi[1]] != "X":
+				#On regarde la valeur de la tuile du noeuds finale à l'indice ou se trouve la tuile X dans le noeuds courant
+				sv = self.finalNode.getTiles()[zi[0]][zi[1]]
+				#On recupere lescoordonne de la valeur trouve précédement, dans le noeuds courant
+				ci = node.getCoordinateIn2DList(sv)
+				#On swap la tuile X avec la tuile se trouvant aux coords trouvés précédement
+				node.swapTiles(idx1=ci[0] , idy1=ci[1] , idx2=zi[0] , idy2=zi[1] )
+			#Si la tuile X est à la bonne place
+			else:
+				stop = False
+				#On parcours les tuiles est on swap la tuile x avec la premiere tuile que n'est pas a la bonne place
+				for i in range(0,rows):
+					for y in range(0,columns):
+						if self.finalNode.getTiles()[i][y] != node.getTiles()[i][y]:
+							#Swap
+							node.swapTiles(idx1=i ,idy1=y , idx2=zi[0] , idy2=zi[1])
+							#Si on a trouve cette tuille on sort de la double vboucle
+							stop = True
+							break
+					if stop:
+						break
+			value += 1
+		return value 
 
 	#Heurisitque calculant la distance de manhattan (la tuile vide n'est pas comptabilisé)
 	def manhattanDistance(self,currentNode,cornerTiles = False ):
@@ -31,10 +68,11 @@ class TaquinResolver:
 					#On calcule la distance entre les coordonnées
 					manhattanDistance =  manhattanDistance + (abs(i-coord[0])+abs(y-coord[1]))
 		if cornerTiles	:
+			#Corner Tiles
 			#On check les 4 angle
 			for i in range(0,2*(rows-1),rows-1):
 				for y in range(0,2*(columns-1),columns-1):
-					#Si la tuile de l'angle n'est pas bonne
+					#Si la tuile de l'angle n'est pas la bonne bonne
 					if(currentNode.getTiles()[i][y] != self.finalNode.getTiles()[i][y] and currentNode.getTiles()[i][y] != 'X' ):
 						if i == 0 :
 							columnsOffset = 1
@@ -44,7 +82,7 @@ class TaquinResolver:
 							rowOffset = 1
 						else:
 							rowOffset = -1
-						#On check si les tuiles adjacent a la tuile de l'angle courant sont les bonnes. Si oui, on rajoute 4 à la distance de manhattan
+						#On check si les tuiles adjacentes à la tuile de l'angle courant sont les bonnes. Si oui, on rajoute 4 à la distance de manhattan
 						if(currentNode.getTiles()[i+columnsOffset][y] == self.finalNode.getTiles()[i+columnsOffset][y] and currentNode.getTiles()[i][y+rowOffset] == self.finalNode.getTiles()[i][y+rowOffset]):
 							manhattanDistance += 4
 						
@@ -64,29 +102,38 @@ class TaquinResolver:
 				if(self.finalNode.getCoordinateIn2DList(currentTile)[1] != y):
 					h += 1
 		return h
-	#Suprime les chemins qui n'ont rien donné pour gardé l'unique chemin optimal
+		#A corriger
+		#
+		#A corriger
+	#Suprime les chemins qui n'ont rien donné pour gardé l'unique chemin 
 	def findBestPath(self):
 		#Pour chaque noeuds en partant de la fin
+		print("Nombre de noeuds parcouru " + str(len(self.bestPath) - 1))
 		i = len(self.bestPath)-1
-		while i >= 1 :	
-			#On regarde si le noeud courant est un successeurs du noeuds se situant avant le noeuds courant dans la liste 
+		while not self.bestPath[i].equalsTo(self.initialNode):	
+			#On regarde si le noeud courant est un successeurs du noeuds "noeud courant+1"
 			while not self.bestPath[i].isInList(self.bestPath[i-1].getSucessors()):
 				#Si le noeud courant n'est pas un sucesseurs du noeuds se situant avant le noeud courant dans la liste
 				#Alors on supprime le noeuds se situant avant le noeuds courant dans la liste
 				self.bestPath.pop(i-1)
-				#On continue pour enlever les feuilles inutiles
+				#On continue pour enlever les branches inutiles
 				i -= 1
 			i -= 1
+		#On supprime les noeuds en trop (on est deja arrive au noeuds initiale)
+		for y in range(i-1,0,-1):
+			self.bestPath.pop(y)
+
 			
 	#Algorithme A* implémenté selon l'algo : https://fr.wikipedia.org/wiki/Algorithme_A*
 	def aStar(self,heuristicChosen, extended = False):
+		self.bestPath = []
 		open = []
 		closed = []
 		open.append(self.initialNode)
 		while open :
 			#Trie la liste dans l'ordre decroissant
 			open.sort(key=lambda x:  -1 *x.getFCost())
-			#On depile open puisque le plus cours chemin est a la fin de la liste
+			#On depile open puisque le chemin avec la plus faible valeur F
 			n = open[-1]
 			self.bestPath.append(n)
 			open.pop(-1)
@@ -116,6 +163,7 @@ class TaquinResolver:
 		return self.bestPath
 		
 	def greedyBestSearch(self,  heuristicChosen):
+		self.bestPath = []
 		open = []
 		closed = []
 		open.append(self.initialNode)
@@ -151,7 +199,9 @@ class TaquinResolver:
 		return self.bestPath
 
 	#Version de l'algo du cours (Donne de moins bon resultats)
+	#L'autre algo est utilisé
 	def aStarV2(self,  heuristicChosen):
+		self.bestPath = []
 		#Declarer deux listes open et closed
 		open = []
 		closed = []

@@ -101,7 +101,7 @@ class TaquinWindow :
 	                    #Cette variable passe a false si on est au dernier mouvement
 	                    if not self.finished :
 	                    	#Execute la fonction nextMove toutes les n ms
-	                    	self.master.after(150,self.nextMove)
+	                    	self.master.after(250,self.nextMove)
 	                    return 1
 	    else:
 	        return 0
