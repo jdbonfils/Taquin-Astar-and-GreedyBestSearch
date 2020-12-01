@@ -3,14 +3,14 @@ from TaquinResolver import TaquinResolver
 from Window import *
 import time
 #La taille du jeu peut etre de toute taille
-finalNode = Node([[1, 2, 3], [4, 5, 6], [7, 8, "X"]])
+finalNode = Node([[1, 6, 5], [4, 7, 3], [2, 8, "X"]])
 
 #On genere un point de depart a 1000 mouvements de la solution
 #Il exite donc une solution pour le jeu du taqin en 10 mou
 #Note : dans la plus part des cas le jeu est realisable en moins de 30 coups pour un 3X3
 #Le temps d'execution ne dependant pas tant du nombre de melange
 #Le deuxieme parametre correspond au nombre de melange au hasard utitilisé pour generer le noeuds initiale
-initialNode = Node.getInitialRandomNode(finalNode, 20 )
+initialNode = Node([[6, 5, 3], [1, "X", 2], [4, 8, 7]])
 
 #Affichage des Noeuds initial et final
 print(" Initial node : ")
